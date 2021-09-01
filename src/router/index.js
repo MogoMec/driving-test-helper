@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import List from '@/components/List/List.vue'
+import ListView from '@/views/ListView.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   { path: '/', redirect: 'list' },
-  { path: '/list', component: List }
+  { path: '/list', component: ListView }
 ]
 
 const router = new VueRouter({

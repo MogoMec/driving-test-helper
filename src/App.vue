@@ -17,11 +17,32 @@
         </el-dropdown-menu>
       </el-dropdown>
       <el-tooltip class="item" effect="dark" placement="bottom">
-        <span class="type-help">？</span>
+        <img
+          src="https://img.icons8.com/color/48/000000/help--v1.png"
+          class="type-help"
+        />
         <div slot="content">
-          多行信息
+          A1: 大型客车
           <br />
-          第二行信息
+          A2：牵引车
+          <br />
+          A3：城市公交车
+          <br />
+          B1：中型客车
+          <br />
+          B2：大型货车
+          <br />
+          C1：小型汽车
+          <br />
+          C2: 小型自动挡汽车
+          <br />
+          C3：低速载货汽车
+          <br />
+          D：普通三轮摩托车
+          <br />
+          E：普通二轮摩托车
+          <br />
+          F：轻便摩托车
         </div>
       </el-tooltip>
       <el-dropdown class="subject" @command="selectSubject">
@@ -104,6 +125,7 @@ export default {
   padding: 10px 20px;
 }
 .type-help {
+  height: 30px;
   display: inline-block;
   font-size: 26px;
   font-weight: bold;
