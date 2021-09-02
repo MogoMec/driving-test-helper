@@ -2,17 +2,33 @@
   <div class="list_item_box">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
+        <span class="index">{{ index + '. ' }}</span>
         <span>{{ question.question }}</span>
         <el-button style="float: right; padding: 3px 0" type="text">
-          操作按钮
+          收藏
         </el-button>
       </div>
-      <div v-for="(item, index) in optionList" :key="index" class="option_list">
-        {{ item }}
+      <div class="option">
+        <div class="option_list">
+          <div
+            v-for="(item, index) in optionList"
+            :key="index"
+            class="option_item"
+          >
+            {{ item }}
+          </div>
+        </div>
+        <div class="pic">
+          <img :src="question.pic" alt="" />
+        </div>
       </div>
       <div class="answer">
-        <span>答案：</span>
-        {{ question.answer }}
+        答案：
+        <span class="answer_content">{{ question.answer }}</span>
+      </div>
+      <div class="explain">
+        解释：
+        {{ question.explain }}
       </div>
     </el-card>
   </div>
@@ -20,7 +36,10 @@
 <script>
 export default {
   props: {
-    question: Object
+    question: Object,
+    pagesize: Number,
+    pagenum: Number,
+    singlepageindex: Number
   },
   computed: {
     optionList() {
@@ -33,6 +52,9 @@ export default {
           })
       }
       return option
+    },
+    index() {
+      return this.pagesize * (this.pagenum - 1) + this.singlepageindex + 1
     }
   }
 }
@@ -40,8 +62,20 @@ export default {
 <style lang="less" scoped>
 .list_item_box {
   text-align: initial;
+  line-height: 1.5em;
 }
 .answer {
   padding-top: 20px;
+}
+.explain {
+  padding-top: 20px;
+  line-height: 1.5em;
+}
+.answer_content {
+  color: #409eff;
+}
+.option {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

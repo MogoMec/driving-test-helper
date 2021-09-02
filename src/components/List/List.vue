@@ -1,13 +1,23 @@
 <template>
   <div class="list_box">
-    题目列表
-    <button @click="test">测试</button>
     <ListItem
       v-for="(item, index) in questionList"
       :key="index"
       class="list_item"
       :question="item"
+      :pagesize="queryInfo.pagesize"
+      :pagenum="queryInfo.pagenum"
+      :singlepageindex="index"
     ></ListItem>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="queryInfo.pagenum"
+      :page-sizes="[20, 50, 100, 200]"
+      :page-size="queryInfo.pagesize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+    ></el-pagination>
   </div>
 </template>
 
@@ -18,12 +28,11 @@ export default {
   data() {
     return {
       questionList: [],
+      total: 0,
       queryInfo: {
-        type: this.$store.state.type,
-        subject: this.$store.state.subject,
+        sort: 'random',
         pagesize: 20,
-        pagenum: 1,
-        sort: 'normal'
+        pagenum: 1
       }
     }
   },
@@ -31,32 +40,58 @@ export default {
     ListItem
   },
   computed: {
+    getType() {
+      return this.$store.state.type
+    },
+    getSubject() {
+      return this.$store.state.subject
+    },
+    fullqueryInfo() {
+      const queryInfo = {
+        ...this.queryInfo
+      }
+      queryInfo.type = this.getType
+      queryInfo.subject = this.getSubject
+      return queryInfo
+    },
     getURL() {
-      return Object.keys(this.queryInfo)
-        .map(key => {
-          return key + '=' + this.queryInfo[key]
-        })
-        .join('&')
-    }
-  },
-  methods: {
-    test() {
-      console.log(
-        Object.keys(this.queryInfo)
+      return (
+        '&' +
+        Object.keys(this.fullqueryInfo)
           .map(key => {
-            return key + '=' + this.queryInfo[key]
+            return key + '=' + this.fullqueryInfo[key]
           })
           .join('&')
       )
-    },
+    }
+  },
+  watch: {
+    fullqueryInfo: {
+      handler() {
+        this.getQuestionList()
+      },
+      deep: true
+    }
+  },
+  methods: {
     getQuestionList() {
       getQuestionList(this.getURL).then(res => {
         this.questionList = res.result.result.list
+        this.total = res.result.result.total
       })
+    },
+    handleSizeChange(newSize) {
+      this.queryInfo.pagesize = newSize
+      // this.getQuestionList()
+    },
+    handleCurrentChange(newPage) {
+      this.queryInfo.pagenum = newPage
+      // this.getQuestionList()
     }
   },
   created() {
     this.getQuestionList()
+    console.log(this.getType)
   }
 }
 </script>

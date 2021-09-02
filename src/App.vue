@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <div class="menu">
+      <!-- 驾考车型、考试科目选择 -->
       <el-dropdown class="type" @command="selectType">
         <el-button type="primary">
           考试类型：{{ this.$store.state.type }}
@@ -16,6 +17,7 @@
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+      <!-- 类型提示 -->
       <el-tooltip class="item" effect="dark" placement="bottom">
         <img
           src="https://img.icons8.com/color/48/000000/help--v1.png"
@@ -60,6 +62,7 @@
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+      <!-- 功能菜单 -->
       <el-menu
         default-active="list"
         class="el-menu-demo"
@@ -76,9 +79,11 @@
         </el-menu-item>
       </el-menu>
     </div>
+    <!-- 内容主体区域 -->
     <div class="main">
       <router-view />
     </div>
+    <div class="footer"></div>
   </div>
 </template>
 <script>
@@ -130,5 +135,8 @@ export default {
   font-size: 26px;
   font-weight: bold;
   vertical-align: middle;
+}
+.footer {
+  height: 100px;
 }
 </style>
