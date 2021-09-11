@@ -2,16 +2,20 @@
   <div class="list_item_box">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span class="index">{{ index + '. ' }}</span>
+        <span class="index">{{ question.index + '. ' }}</span>
         <span>{{ question.question }}</span>
-        <el-button style="float: right; padding: 3px 0" type="text">
+        <el-button
+          style="float: right; padding: 3px 0"
+          type="text"
+          @click="collectQuestion"
+        >
           收藏
         </el-button>
       </div>
       <div class="option">
         <div class="option_list">
           <div
-            v-for="(item, index) in optionList"
+            v-for="(item, index) in question.optionList"
             :key="index"
             class="option_item"
           >
@@ -36,25 +40,16 @@
 <script>
 export default {
   props: {
-    question: Object,
-    pagesize: Number,
-    pagenum: Number,
-    singlepageindex: Number
+    question: Object
   },
-  computed: {
-    optionList() {
-      const option = []
-      if ('option1' in this.question) {
-        Object.keys(this.question)
-          .filter(key => !(key.indexOf('option') === -1))
-          .forEach(key => {
-            option.push(this.question[key])
-          })
-      }
-      return option
-    },
-    index() {
-      return this.pagesize * (this.pagenum - 1) + this.singlepageindex + 1
+  computed: {},
+  methods: {
+    collectQuestion() {
+      console.log(this.question)
+      const targetQuestion = JSON.stringify(this.question)
+      console.log(JSON.parse(targetQuestion))
+      localStorage.test = targetQuestion
+      console.log(localStorage.test)
     }
   }
 }
@@ -77,5 +72,10 @@ export default {
 .option {
   display: flex;
   justify-content: space-between;
+}
+.pic {
+  img {
+    width: 400px;
+  }
 }
 </style>

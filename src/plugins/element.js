@@ -39,9 +39,13 @@ import {
   Upload,
   DropdownItem,
   DropdownMenu,
-  Dropdown
+  Dropdown,
+  Skeleton,
+  SkeletonItem
 } from 'element-ui'
 
+Vue.use(Skeleton)
+Vue.use(SkeletonItem)
 Vue.use(Button)
 Vue.use(DropdownItem)
 Vue.use(DropdownMenu)
