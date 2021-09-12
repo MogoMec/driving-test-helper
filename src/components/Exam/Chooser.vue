@@ -5,7 +5,7 @@
       class="option"
       v-for="(item, index) in options"
       :key="index"
-      @click="selected"
+      @click="selected(index)"
     >
       {{ item }}
     </button>
@@ -21,7 +21,8 @@ export default {
   },
   data() {
     return {
-      options: []
+      options: [],
+      answer: []
     }
   },
   watch: {
@@ -45,8 +46,15 @@ export default {
       }
       console.log(this.options)
     },
-    selected() {
-      console.log(1)
+    selected(index) {
+      console.log(index)
+      this.answer.push(index)
+      if (this.questionType !== 'm-choice') {
+        this.commitAnswer()
+      }
+    },
+    commitAnswer() {
+      this.$emit('commit', this.answer)
     }
   },
   created() {

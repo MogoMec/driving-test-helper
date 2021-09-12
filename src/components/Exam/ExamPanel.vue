@@ -27,7 +27,11 @@
           >
             {{ item }}
           </p>
-          <Chooser :questionType="questionType" class="chooser"></Chooser>
+          <Chooser
+            :questionType="questionType"
+            class="chooser"
+            @commit="checkAnswer"
+          ></Chooser>
         </fieldset>
       </div>
       <div class="col3">
@@ -40,7 +44,20 @@
         ></ButtonList>
       </div>
     </div>
-    <div class="row2"></div>
+    <div class="row2">
+      <div class="col1">
+        <fieldset class="border">
+          <legend class="title">剩余时间</legend>
+          <Timer :setTime="testTime" @timerEnd="timeEnd" class="timer"></Timer>
+        </fieldset>
+      </div>
+      <div class="col2">
+        <fieldset class="border">
+          <legend class="info_title">提示信息</legend>
+          {{ info }}
+        </fieldset>
+      </div>
+    </div>
     <div class="row3">
       <fieldset class="border pic">
         <legend class="title">图片信息</legend>
@@ -52,6 +69,7 @@
 <script>
 import ButtonList from './ButtonList.vue'
 import Chooser from './Chooser.vue'
+import Timer from './Timer.vue'
 import { getQuestionList } from '@/network/request.js'
 import { getQuestionType, getNormalContent } from '@/utils/utils.js'
 export default {
@@ -61,10 +79,12 @@ export default {
       finalQuestonList: [],
       currentIndex: 0,
       wrongIndex: 1,
-      rightIndex: 2
+      rightIndex: 2,
+      testTime: 45 * 60e3,
+      info: '判断题，请判断对错！'
     }
   },
-  components: { ButtonList, Chooser },
+  components: { ButtonList, Chooser, Timer },
   computed: {
     currentItem() {
       return this.finalQuestonList[this.currentIndex]
@@ -83,9 +103,28 @@ export default {
     getSubject: async function() {
       await this.getFinalQuestionList()
       this.count = this.finalQuestonList.length
+    },
+    currentIndex() {
+      switch (this.questionType) {
+        case 'choice':
+          this.info = '选择题，请选出你认为正确的答案！'
+          break
+        case 'm-choice':
+          this.info = '多选题,请选择所有你认为正确的选项！'
+          break
+        case 'judge':
+          this.info = '判断题，请判断对错！'
+          break
+      }
     }
   },
   methods: {
+    checkAnswer(answer) {
+      console.log(answer)
+    },
+    timeEnd() {
+      alert('考试结束')
+    },
     changeQuestion(index) {
       this.currentIndex = parseInt(index)
     },
@@ -100,7 +139,10 @@ export default {
       //     this.getSubject
       //   }&pagenum=${pagenum++}&pagesize=200&sort=random`
       // )
-      while (choiceQuestionList.length < 60 || judgeQuestionList.length < 40) {
+      while (
+        (this.getSubject === 1 && choiceQuestionList.length < 60) ||
+        judgeQuestionList.length < 40
+      ) {
         res = await getQuestionList(
           `&type=${this.getType}&subject=${
             this.getSubject
@@ -151,38 +193,57 @@ export default {
 }
 .row1 {
   display: flex;
-}
-.col1 {
-  display: flex;
-  flex-direction: column;
-  .person_info {
-    flex: 1;
-  }
-}
-.col2 {
-  width: 60%;
-  .question {
-    height: 360px;
-    text-align: left;
-    position: relative;
-    .chooser {
-      position: absolute;
-      right: 20px;
-      bottom: 20px;
+  .col1 {
+    display: flex;
+    flex-direction: column;
+    .person_info {
+      flex: 1;
     }
   }
-  .option {
-    margin-left: 20px;
+  .col2 {
+    width: 60%;
+    .question {
+      height: 360px;
+      text-align: left;
+      position: relative;
+      .chooser {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+      }
+    }
+    .option {
+      margin-left: 20px;
+    }
+  }
+  .col3 {
+    flex: 1;
+    width: 24%;
+    padding: 20px 5px;
   }
 }
-.col3 {
-  flex: 1;
-  width: 24%;
-  padding: 20px 5px;
+.row2 {
+  display: flex;
+  .col1 {
+    width: 16%;
+    .timer {
+      color: red;
+      font-size: 16px;
+    }
+  }
+  .col2 {
+    width: 60%;
+    text-align: left;
+  }
 }
 .border {
   border-radius: 4px;
   margin-top: 20px;
+}
+.info_title {
+  text-align: left;
+  color: blue;
+  font-size: 16px;
 }
 .title {
   text-align: left;
