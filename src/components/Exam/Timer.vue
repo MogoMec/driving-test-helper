@@ -9,6 +9,10 @@ export default {
     setTime: {
       type: Number,
       default: 6000
+    },
+    isStart: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -50,24 +54,32 @@ export default {
       )
     }
   },
+  methods: {
+    start() {
+      // 递归调用定时器实现计时
+      this.time = this.setTime
+      this.now = Date.now()
+      const update = () => {
+        setTimeout(() => {
+          update()
+          this.now = Date.now()
+        }, 1e3)
+      }
+      update()
+    }
+  },
   watch: {
     countdown(countdown) {
       if (countdown === 0) {
         this.$emit('timerEnd')
       }
+    },
+    isStart(isStart) {
+      if (isStart) {
+        console.log('start')
+        this.start()
+      }
     }
-  },
-  created() {
-    this.time = this.setTime
-    this.now = Date.now()
-    // 递归调用定时器实现计时
-    const update = () => {
-      setTimeout(() => {
-        update()
-        this.now = Date.now()
-      }, 1e3)
-    }
-    update()
   }
 }
 </script>

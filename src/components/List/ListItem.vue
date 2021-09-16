@@ -4,13 +4,6 @@
       <div slot="header" class="clearfix">
         <span class="index">{{ question.index + '. ' }}</span>
         <span>{{ question.question }}</span>
-        <el-button
-          style="float: right; padding: 3px 0"
-          type="text"
-          @click="collectQuestion"
-        >
-          收藏
-        </el-button>
       </div>
       <div class="option">
         <div class="option_list">
@@ -42,16 +35,7 @@ export default {
   props: {
     question: Object
   },
-  computed: {},
-  methods: {
-    collectQuestion() {
-      console.log(this.question)
-      const targetQuestion = JSON.stringify(this.question)
-      console.log(JSON.parse(targetQuestion))
-      localStorage.test = targetQuestion
-      console.log(localStorage.test)
-    }
-  }
+  computed: {}
 }
 </script>
 <style lang="less" scoped>

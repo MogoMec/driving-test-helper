@@ -11,7 +11,9 @@
 export default {
   data() {
     return {
-      array: []
+      array: [],
+      wrongList: [],
+      rightList: []
     }
   },
   props: {
@@ -26,7 +28,6 @@ export default {
         ? e.target.dataset.index
         : e.target.childNodes[0].dataset.index
       this.$emit('buttonClicked', index)
-      console.log(index)
     },
     initArray() {
       const arr = []
@@ -34,14 +35,32 @@ export default {
         arr.push('normal')
       }
       arr[this.currentIndex] = 'current'
-      console.log(arr)
       return arr
     }
   },
   watch: {
     currentIndex: function(newIndex, oldIndex) {
       this.$set(this.array, newIndex, 'current')
-      this.array[oldIndex] = 'normal'
+      this.$set(this.array, oldIndex, 'normal')
+      console.log(oldIndex)
+      if (this.wrongList.includes(oldIndex)) {
+        console.log('wrong')
+        this.$set(this.array, oldIndex, 'wrong')
+      } else if (this.rightList.includes(oldIndex)) {
+        console.log('right')
+        this.$set(this.array, oldIndex, 'right')
+      }
+    },
+    wrongIndex: function(newIndex) {
+      this.$set(this.array, newIndex, 'wrong')
+      this.wrongList.push(newIndex)
+    },
+    rightIndex: function(newIndex) {
+      this.$set(this.array, newIndex, 'right')
+      this.rightList.push(newIndex)
+    },
+    length: function() {
+      this.array = this.initArray()
     }
   },
   // computed: {
@@ -59,6 +78,18 @@ export default {
 <style lang="less" scoped>
 .current {
   background-color: #1d6bd0;
+  div {
+    color: white;
+  }
+}
+.wrong {
+  background-color: red;
+  div {
+    color: white;
+  }
+}
+.right {
+  background-color: green;
   div {
     color: white;
   }

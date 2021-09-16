@@ -1,5 +1,5 @@
 <template>
-  <div class="box">
+  <div class="box" v-if="finalQuestionList[0] !== undefined">
     <div class="row1">
       <div class="col1">
         <fieldset class="border">
@@ -27,10 +27,16 @@
           >
             {{ item }}
           </p>
+          <AnswerTip
+            class="tip"
+            :res="answerTip"
+            v-show="isChecked"
+          ></AnswerTip>
           <Chooser
             :questionType="questionType"
             class="chooser"
             @commit="checkAnswer"
+            v-show="!isChecked"
           ></Chooser>
         </fieldset>
       </div>
@@ -48,7 +54,12 @@
       <div class="col1">
         <fieldset class="border">
           <legend class="title">剩余时间</legend>
-          <Timer :setTime="testTime" @timerEnd="timeEnd" class="timer"></Timer>
+          <Timer
+            :setTime="testTime"
+            @timerEnd="timeEnd"
+            class="timer"
+            :isStart="isStart"
+          ></Timer>
         </fieldset>
       </div>
       <div class="col2">
@@ -56,6 +67,11 @@
           <legend class="info_title">提示信息</legend>
           {{ info }}
         </fieldset>
+      </div>
+      <div class="col3">
+        <button @click="prevQuestion">上一题</button>
+        <button @click="nextQuestion">下一题</button>
+        <button>交卷</button>
       </div>
     </div>
     <div class="row3">
@@ -70,24 +86,38 @@
 import ButtonList from './ButtonList.vue'
 import Chooser from './Chooser.vue'
 import Timer from './Timer.vue'
+import AnswerTip from './AnswerTip.vue'
 import { getQuestionList } from '@/network/request.js'
 import { getQuestionType, getNormalContent } from '@/utils/utils.js'
 export default {
+  props: {
+    isStart: Boolean
+  },
   data() {
     return {
       count: 100,
-      finalQuestonList: [],
+      finalQuestionList: [],
       currentIndex: 0,
-      wrongIndex: 1,
-      rightIndex: 2,
+      wrongIndex: NaN,
+      rightIndex: NaN,
+      wrongList: [],
+      wrongCount: 0,
+      rightList: [],
+      userAnswer: {},
       testTime: 45 * 60e3,
       info: '判断题，请判断对错！'
     }
   },
-  components: { ButtonList, Chooser, Timer },
+  components: { ButtonList, Chooser, Timer, AnswerTip },
   computed: {
+    isChecked() {
+      if (this.wrongList.concat(this.rightList).includes(this.currentIndex)) {
+        return true
+      }
+      return false
+    },
     currentItem() {
-      return this.finalQuestonList[this.currentIndex]
+      return this.finalQuestionList[this.currentIndex]
     },
     getType() {
       return this.$store.state.type
@@ -96,14 +126,37 @@ export default {
       return this.$store.state.subject
     },
     questionType() {
-      return getQuestionType(this.finalQuestonList[this.currentIndex])
+      return getQuestionType(this.finalQuestionList[this.currentIndex])
+    },
+    answerTip() {
+      const res = {}
+      if (this.userAnswer[this.currentIndex] === this.currentItem.answer) {
+        res.judge = true
+      } else {
+        res.judge = false
+      }
+      res.userAnswer = this.userAnswer[this.currentIndex]
+      res.trueAnswer = this.currentItem.answer
+      return res
+    },
+    score() {
+      const points = {
+        1: 1,
+        4: 2
+      }
+      let score = 100
+      console.log(this.wrongCount, points[this.getSubject])
+      score -= this.wrongCount * points[this.getSubject]
+      console.log(score)
+      return score
     }
   },
   watch: {
     getSubject: async function() {
       await this.getFinalQuestionList()
-      this.count = this.finalQuestonList.length
+      this.count = this.finalQuestionList.length
     },
+    // 根据题型更新提示信息
     currentIndex() {
       switch (this.questionType) {
         case 'choice':
@@ -116,11 +169,53 @@ export default {
           this.info = '判断题，请判断对错！'
           break
       }
+    },
+    wrongIndex(wrongIndex) {
+      this.wrongList.push(wrongIndex)
+      this.wrongCount++
+    },
+    rightIndex(rightIndex) {
+      this.rightList.push(rightIndex)
+    },
+    score(score) {
+      console.log(score)
+      if (score < 90) {
+        alert('考试结束')
+      }
     }
   },
   methods: {
+    testFailed() {
+      this.$emit('testFailed')
+    },
+    getAnswerText(answer) {
+      const choiceList = ['A', 'B', 'C', 'D']
+      let answerStr = ''
+      const judgeList = ['对', '错']
+      if (this.questionType === 'judge') {
+        return judgeList[answer[0]]
+      } else {
+        for (const value of answer) {
+          answerStr += choiceList[value]
+        }
+        return answerStr
+      }
+    },
     checkAnswer(answer) {
-      console.log(answer)
+      answer = this.getAnswerText(answer)
+      if (answer !== this.currentItem.answer) {
+        this.wrongIndex = this.currentIndex
+      } else {
+        this.rightIndex = this.currentIndex
+      }
+      this.userAnswer[this.currentIndex] = answer
+      this.nextQuestion()
+    },
+    nextQuestion() {
+      this.currentIndex++
+    },
+    prevQuestion() {
+      this.currentIndex--
     },
     timeEnd() {
       alert('考试结束')
@@ -134,14 +229,23 @@ export default {
       const multiChoiceQuestionList = []
       let res = {}
       let pagenum = 1
-      // console.log(
-      //   `&type=${this.getType}&subject=${
-      //     this.getSubject
-      //   }&pagenum=${pagenum++}&pagesize=200&sort=random`
-      // )
+      const questionCount = {
+        1: {
+          judge: 40,
+          choice: 60,
+          multiChoice: 0
+        },
+        4: {
+          judge: 20,
+          choice: 20,
+          multiChoice: 10
+        }
+      }
       while (
-        (this.getSubject === 1 && choiceQuestionList.length < 60) ||
-        judgeQuestionList.length < 40
+        choiceQuestionList.length < questionCount[this.getSubject].choice ||
+        judgeQuestionList.length < questionCount[this.getSubject].judge ||
+        multiChoiceQuestionList.length <
+          questionCount[this.getSubject].multiChoice
       ) {
         res = await getQuestionList(
           `&type=${this.getType}&subject=${
@@ -151,24 +255,38 @@ export default {
         console.log(res)
         res.list.forEach(item => {
           const questionType = getQuestionType(item)
-          if (this.getSubject === '1') {
-            if (questionType === 'choice' && choiceQuestionList.length < 60) {
-              choiceQuestionList.push(getNormalContent(item))
-            } else if (judgeQuestionList.length < 40) {
-              judgeQuestionList.push(getNormalContent(item))
-            }
-          } else {
-            if (questionType === 'choice') {
-              choiceQuestionList.push(getNormalContent(item))
-            } else if (questionType === 'm-choice') {
-              multiChoiceQuestionList.push(getNormalContent(item))
-            } else {
-              judgeQuestionList.push(getNormalContent(item))
-            }
+          switch (questionType) {
+            case 'judge':
+              if (
+                judgeQuestionList.length < questionCount[this.getSubject].judge
+              ) {
+                judgeQuestionList.push(getNormalContent(item))
+              }
+              break
+            case 'choice':
+              if (
+                choiceQuestionList.length <
+                questionCount[this.getSubject].choice
+              ) {
+                choiceQuestionList.push(getNormalContent(item))
+              }
+              break
+            case 'm-choice':
+              if (
+                multiChoiceQuestionList.length <
+                questionCount[this.getSubject].multiChoice
+              ) {
+                multiChoiceQuestionList.push(getNormalContent(item))
+              }
+              break
           }
         })
       }
-      this.finalQuestonList = judgeQuestionList.concat(choiceQuestionList)
+      this.finalQuestionList = judgeQuestionList
+        .concat(choiceQuestionList)
+        .concat(multiChoiceQuestionList)
+      this.count = this.finalQuestionList.length
+      console.log(this.finalQuestionList)
     }
   },
   created() {
@@ -211,6 +329,11 @@ export default {
         right: 20px;
         bottom: 20px;
       }
+      .tip {
+        position: absolute;
+        left: 20px;
+        bottom: 20px;
+      }
     }
     .option {
       margin-left: 20px;
@@ -234,6 +357,16 @@ export default {
   .col2 {
     width: 60%;
     text-align: left;
+  }
+  .col3 {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+    margin-top: 20px;
+    button {
+      height: 34px;
+      margin: 10px;
+    }
   }
 }
 .border {

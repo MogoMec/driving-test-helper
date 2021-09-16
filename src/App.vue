@@ -81,7 +81,7 @@
       </el-dropdown>
       <!-- 功能菜单 -->
       <el-menu
-        default-active="list"
+        :default-active="currentView"
         class="el-menu-demo"
         mode="horizontal"
         router
@@ -108,7 +108,8 @@ export default {
   data() {
     return {
       subjects: ['1', '4'],
-      types: ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2', 'C3', 'D', 'E', 'F']
+      types: ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2', 'C3', 'D', 'E', 'F'],
+      currentView: ''
     }
   },
   methods: {
@@ -118,6 +119,9 @@ export default {
     selectType(command) {
       this.$store.commit('setType', command)
     }
+  },
+  mounted() {
+    this.currentView = this.$route.path.slice(1)
   }
 }
 </script>
@@ -128,6 +132,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  z-index: 999;
 }
 .menu {
   position: fixed;
