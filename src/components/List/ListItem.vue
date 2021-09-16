@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="pic">
-          <img :src="question.pic" alt="" />
+          <img v-lazy="question.pic" alt="" />
         </div>
       </div>
       <div class="answer">
@@ -56,10 +56,5 @@ export default {
 .option {
   display: flex;
   justify-content: space-between;
-}
-.pic {
-  img {
-    width: 400px;
-  }
 }
 </style>

@@ -6,7 +6,9 @@ import './plugins/element.js'
 import './assets/css/normalize.css'
 import './assets/css/common.css'
 import axios from 'axios'
+import VueLazyLoad from 'vue-lazyload'
 
+Vue.use(VueLazyLoad)
 Vue.config.productionTip = false
 Vue.prototype.$https = axios
 new Vue({
