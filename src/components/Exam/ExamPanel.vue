@@ -91,7 +91,10 @@ import { getQuestionList } from '@/network/request.js'
 import { getQuestionType, getNormalContent } from '@/utils/utils.js'
 export default {
   props: {
-    isStart: Boolean
+    isStart: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -180,13 +183,16 @@ export default {
     score(score) {
       console.log(score)
       if (score < 90) {
-        alert('考试结束')
+        this.testFailed()
       }
     }
   },
   methods: {
     testFailed() {
       this.$emit('testFailed')
+    },
+    testPass() {
+      this.$emit('testPass', this.score)
     },
     getAnswerText(answer) {
       const choiceList = ['A', 'B', 'C', 'D']

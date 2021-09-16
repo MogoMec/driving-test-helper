@@ -1,22 +1,33 @@
 <template>
   <div class="test_view_box">
-    <el-dialog title="提示" :visible.sync="dialogVisible" width="340px">
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
+      :show-close="false"
+      width="340px"
+    >
       <span>
-        {{ hintText[getSubject] }}
+        {{ text }}
       </span>
       <span slot="footer" class="dialog-footer">
-        <el-button
-          type="primary"
-          @click="
-            dialogVisible = false
-            isStart = true
-          "
-        >
-          确 定
+        <el-button type="primary" @click="loadTest">
+          {{ buttonText }}
         </el-button>
       </span>
     </el-dialog>
-    <ExamPanel :isStart="isStart" v-if="load"></ExamPanel>
+    <ExamPanel
+      :isStart="isStart"
+      v-if="load"
+      @testFailed="
+        dialogVisible = true
+        status = 'fail'
+      "
+      @testPass="
+        status = 'pass'
+        dialogVisible = true
+      "
+    ></ExamPanel>
   </div>
 </template>
 <script>
@@ -24,7 +35,9 @@ import ExamPanel from '@/components/Exam/ExamPanel.vue'
 export default {
   data() {
     return {
+      score: 0,
       load: true,
+      status: 'init',
       isStart: false,
       dialogVisible: true,
       hintText: {
@@ -33,12 +46,46 @@ export default {
       }
     }
   },
+  methods: {
+    loadTest() {
+      this.dialogVisible = false
+      if (this.status !== 'init') {
+        this.load = false
+        setTimeout(() => {
+          this.load = true
+        }, 10)
+      }
+      this.isStart = true
+      this.status = 'init'
+    }
+  },
   computed: {
+    text() {
+      switch (this.status) {
+        case 'pass':
+          return '恭喜你，通过了科目一考试，你的得分为' + this.score
+        case 'fail':
+          return '考试未通过'
+      }
+      return this.hintText[this.getSubject]
+    },
+    buttonText() {
+      if (this.status === 'init') {
+        return '确定'
+      }
+      return '再答一次'
+    },
     getSubject() {
       return this.$store.state.subject
     }
   },
+
   watch: {
+    status(status) {
+      if (status !== 'init') {
+        this.isStart = true
+      }
+    },
     getSubject: function() {
       this.dialogVisible = true
       this.isStart = false

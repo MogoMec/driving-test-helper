@@ -56,16 +56,18 @@ export default {
   },
   methods: {
     start() {
-      // 递归调用定时器实现计时
-      this.time = this.setTime
-      this.now = Date.now()
-      const update = () => {
-        setTimeout(() => {
-          update()
-          this.now = Date.now()
-        }, 1e3)
+      if (this.isStart) {
+        // 递归调用定时器实现计时
+        this.time = this.setTime
+        this.now = Date.now()
+        const update = () => {
+          setTimeout(() => {
+            update()
+            this.now = Date.now()
+          }, 1e3)
+        }
+        update()
       }
-      update()
     }
   },
   watch: {
@@ -75,11 +77,11 @@ export default {
       }
     },
     isStart(isStart) {
-      if (isStart) {
-        console.log('start')
-        this.start()
-      }
+      this.start()
     }
+  },
+  created() {
+    this.start()
   }
 }
 </script>
