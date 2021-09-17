@@ -27,7 +27,10 @@ export default {
       const index = e.target.dataset.index
         ? e.target.dataset.index
         : e.target.childNodes[0].dataset.index
-      this.$emit('buttonClicked', index)
+      console.log(index)
+      if (index !== undefined) {
+        this.$emit('buttonClicked', index)
+      }
     },
     initArray() {
       const arr = []
@@ -42,7 +45,6 @@ export default {
     currentIndex: function(newIndex, oldIndex) {
       this.$set(this.array, newIndex, 'current')
       this.$set(this.array, oldIndex, 'normal')
-      console.log(oldIndex)
       if (this.wrongList.includes(oldIndex)) {
         console.log('wrong')
         this.$set(this.array, oldIndex, 'wrong')

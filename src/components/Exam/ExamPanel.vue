@@ -71,7 +71,7 @@
       <div class="col3">
         <button @click="prevQuestion">上一题</button>
         <button @click="nextQuestion">下一题</button>
-        <button>交卷</button>
+        <button @click="checkScore">交卷</button>
       </div>
     </div>
     <div class="row3">
@@ -106,6 +106,7 @@ export default {
       wrongList: [],
       wrongCount: 0,
       rightList: [],
+      rightCount: 0,
       userAnswer: {},
       testTime: 45 * 60e3,
       info: '判断题，请判断对错！'
@@ -147,9 +148,8 @@ export default {
         1: 1,
         4: 2
       }
-      let score = 100
-      console.log(this.wrongCount, points[this.getSubject])
-      score -= this.wrongCount * points[this.getSubject]
+      let score = 0
+      score += this.rightCount * points[this.getSubject]
       console.log(score)
       return score
     }
@@ -179,15 +179,26 @@ export default {
     },
     rightIndex(rightIndex) {
       this.rightList.push(rightIndex)
+      this.rightCount++
     },
-    score(score) {
-      console.log(score)
-      if (score < 90) {
+    wrongCount(wrongCount) {
+      const max = {
+        1: 10,
+        4: 5
+      }
+      if (wrongCount === max[this.getSubject]) {
         this.testFailed()
       }
     }
   },
   methods: {
+    checkScore() {
+      if (this.score < 90) {
+        this.testFailed()
+      } else {
+        this.testPass()
+      }
+    },
     testFailed() {
       this.$emit('testFailed')
     },

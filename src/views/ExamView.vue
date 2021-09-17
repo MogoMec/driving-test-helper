@@ -23,10 +23,7 @@
         dialogVisible = true
         status = 'fail'
       "
-      @testPass="
-        status = 'pass'
-        dialogVisible = true
-      "
+      @testPass="testPass(score)"
     ></ExamPanel>
   </div>
 </template>
@@ -35,7 +32,6 @@ import ExamPanel from '@/components/Exam/ExamPanel.vue'
 export default {
   data() {
     return {
-      score: 0,
       load: true,
       status: 'init',
       isStart: false,
@@ -56,14 +52,20 @@ export default {
         }, 10)
       }
       this.isStart = true
-      this.status = 'init'
+      setTimeout(() => {
+        this.status = 'init'
+      }, 1000)
+    },
+    testPass() {
+      this.status = 'pass'
+      this.dialogVisible = true
     }
   },
   computed: {
     text() {
       switch (this.status) {
         case 'pass':
-          return '恭喜你，通过了科目一考试，你的得分为' + this.score
+          return '恭喜你，通过了科目一考试。'
         case 'fail':
           return '考试未通过'
       }

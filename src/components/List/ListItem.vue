@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="pic">
-          <img v-lazy="question.pic" alt="" />
+          <img :src="question.pic" alt="" />
         </div>
       </div>
       <div class="answer">

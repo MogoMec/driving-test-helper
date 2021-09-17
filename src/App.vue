@@ -87,7 +87,7 @@
         router
       >
         <el-menu-item index="list">题目列表</el-menu-item>
-        <el-menu-item index="practice">练习模式</el-menu-item>
+        <!-- <el-menu-item index="practice">练习模式</el-menu-item> -->
         <el-menu-item index="test">模拟考试</el-menu-item>
         <el-menu-item>
           <a href="https://122.gov.cn/m/index/" target="_blank">
@@ -120,8 +120,10 @@ export default {
       this.$store.commit('setType', command)
     }
   },
-  mounted() {
-    this.currentView = this.$route.path.slice(1)
+  watch: {
+    $route(to) {
+      this.currentView = to.path.slice(1)
+    }
   }
 }
 </script>
@@ -145,7 +147,7 @@ export default {
   display: flex;
   justify-content: center;
   li {
-    padding: 0 50px;
+    padding: 0 80px;
   }
 }
 .main {
